@@ -1,8 +1,5 @@
 # Bakery-Website
 
-Lokesh Patil
-
+Lokesh Patil (hi)
 Vivek Kumar
-
-
 test
