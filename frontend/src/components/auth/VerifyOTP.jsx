@@ -6,7 +6,7 @@ const VerifyOTP = () => {
   const navigate = useNavigate();
 
   const [userDetails, setUserDetails] = useState({
-    phone: "",
+    email: "",
   });
 
   const [otp, setOtp] = useState("");
