@@ -145,34 +145,41 @@ router.post("/set-username", async (req, res, next) => {
       return res.status(400).json({ message: "Missing data" });
     }
 
+    // check username
     const exists = await User.findOne({ username });
     if (exists) return res.status(400).json({ message: "Username taken" });
 
+    // find OTP record
     const query = email ? { email } : { phone };
     const otpRecord = await Otp.findOne(query).sort({ createdAt: -1 });
 
     if (!otpRecord)
       return res.status(400).json({ message: "Registration expired" });
 
-    const hashed = await bcrypt.hash(otpRecord.password, 10);
+    // hash the password properly
+    const hashedPassword = await bcrypt.hash(otpRecord.password, 10);
 
+    // create user
     const user = await User.create({
       name: otpRecord.name,
       email: otpRecord.email,
       phone: otpRecord.phone,
-      password: otpRecord.password, // ← raw password
+      password: hashedPassword,
       username,
       emailVerified: true,
     });
 
+    // delete OTP record
     await Otp.deleteOne({ _id: otpRecord._id });
 
     res.status(201).json({
       message: "Registration complete",
       user: { id: user._id, username: user.username, email: user.email },
     });
+
   } catch (err) {
-    next(err);
+    console.error("SET USERNAME ERROR:", err);
+    res.status(500).json({ message: "Internal error", error: err.message });
   }
 });
 
